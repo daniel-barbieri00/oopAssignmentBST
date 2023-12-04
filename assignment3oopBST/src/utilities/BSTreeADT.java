@@ -1,4 +1,7 @@
-package assignment3oopBST;
+/**
+ * BSTreeADT
+ */
+package utilities;
 
 import treeImplementation.BSTreeNode;
 
