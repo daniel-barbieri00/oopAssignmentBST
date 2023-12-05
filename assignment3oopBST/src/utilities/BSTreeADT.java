@@ -3,8 +3,7 @@
  */
 package utilities;
 
-import treeImplementation.BSTreeNode;
-
+import assignment3oopBST.BSTreeNode;
 /**
  * Class Description: Abstract data type specification for a simple
  * Binary Tree implementation.

@@ -1,10 +1,12 @@
-//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
-//^^ code for syncing
-
 package assignment3oopBST;
 
-import java.util.Iterator;
+
 import java.util.NoSuchElementException;
+import java.util.Stack;
+
+import utilities.BSTreeADT;
+import utilities.Iterator;
+import assignment3oopBST.BSTreeNode;
 
 /**
  * Binary Search Tree implementation adhering to the BSTreeADT interface.
@@ -13,10 +15,6 @@ import java.util.NoSuchElementException;
  */
 public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E> {
     private BSTreeNode<E> root;
-
-    public BSTree() {
-        this.root = null;
-    }
 
     public BSTreeNode<E> getRoot() {
         return root;
@@ -70,7 +68,7 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E> {
         return searchRecursive(root, entry);
     }
 
-    private BSTreeNode<E> searchRecursive(BSTreeNode<E> node, E entry) {
+    public BSTreeNode<E> searchRecursive(BSTreeNode<E> node, E entry) {
         if (node == null || node.getData().equals(entry)) {
             return node;
         }
@@ -155,49 +153,122 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E> {
         node.setRight(removeMaxRecursive(node.getRight()));
         return node;
     }
-
-    public Iterator<E> inorderIterator() {
-        return new InorderIterator(root);
+    
+    
+    public utilities.Iterator<E> inorderIterator() {
+        return new InorderIterator<>(root);
     }
 
-    public Iterator<E> preorderIterator() {
-        return new PreorderIterator(root);
+    
+    public utilities.Iterator<E> preorderIterator() {
+        return new PreorderIterator<>(root);
     }
 
+    
     public Iterator<E> postorderIterator() {
-        return new PostorderIterator(root);
+        return new PostorderIterator<>(root);
+    }
+    
+ // Inorder Iterator
+    public class InorderIterator<E extends Comparable<? super E>> implements Iterator<E> {
+
+        private Stack<BSTreeNode<E>> stack;
+        private BSTreeNode<E> current;
+
+        public InorderIterator(BSTreeNode<E> root) {
+            stack = new Stack<>();
+            current = root;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !stack.isEmpty() || current != null;
+        }
+
+        @Override
+        public E next() {
+            while (current != null) {
+                stack.push(current);
+                current = current.getLeft();
+            }
+
+            current = stack.pop();
+            BSTreeNode<E> node = current;
+            current = current.getRight();
+
+            return node.getData();
+        }
     }
 
-    // Inner class representing a node in the Binary Search Tree
-    private static class BSTreeNode<E> {
-        private E data;
-        private BSTreeNode<E> left;
-        private BSTreeNode<E> right;
+    // Preorder Iterator
+    public class PreorderIterator<E extends Comparable<? super E>> implements Iterator<E> {
 
-        public BSTreeNode(E data) {
-            this.data = data;
-            this.left = null;
-            this.right = null;
+        private Stack<BSTreeNode<E>> stack;
+
+        public PreorderIterator(BSTreeNode<E> root) {
+            stack = new Stack<>();
+            if (root != null) {
+                stack.push(root);
+            }
         }
 
-        public E getData() {
-            return data;
+        @Override
+        public boolean hasNext() {
+            return !stack.isEmpty();
         }
 
-        public BSTreeNode<E> getLeft() {
-            return left;
-        }
+        @Override
+        public E next() {
+            if (!hasNext()) {
+                throw new IllegalStateException("No more elements in the iteration.");
+            }
 
-        public void setLeft(BSTreeNode<E> left) {
-            this.left = left;
-        }
+            BSTreeNode<E> current = stack.pop();
+            if (current.getRight() != null) {
+                stack.push(current.getRight());
+            }
+            if (current.getLeft() != null) {
+                stack.push(current.getLeft());
+            }
 
-        public BSTreeNode<E> getRight() {
-            return right;
-        }
-
-        public void setRight(BSTreeNode<E> right) {
-            this.right = right;
+            return current.getData();
         }
     }
+
+    // Postorder Iterator
+    public class PostorderIterator<E extends Comparable<? super E>> implements Iterator<E> {
+
+        private Stack<BSTreeNode<E>> stack;
+
+        public PostorderIterator(BSTreeNode<E> root) {
+            stack = new Stack<>();
+            fillStack(root);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !stack.isEmpty();
+        }
+
+        @Override
+        public E next() {
+            if (!hasNext()) {
+                throw new IllegalStateException("No more elements in the iteration.");
+            }
+
+            return stack.pop().getData();
+        }
+
+        private void fillStack(BSTreeNode<E> node) {
+            if (node == null) {
+                return;
+            }
+
+            stack.push(node);
+
+            fillStack(node.getRight());
+            fillStack(node.getLeft());
+        }
+    }
+
 }
